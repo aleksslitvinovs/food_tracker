@@ -1,0 +1,20 @@
+$color-main: #38514d;
+$color-dark: #20252b;
+$color-active: #0df4bc;
+$color-light: #f7f7f7;
+
+h1 {
+    font-size: 50px;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 40px;
+    font-weight: 600;
+}
+
+* {
+    font-size: 24px;
+    margin: 0;
+    color: $color-light;
+}

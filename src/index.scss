@@ -1,0 +1,11 @@
+@import "./variables";
+
+body {
+  max-width: 1080px;
+  margin: 0 auto;
+  background-color: $color-dark;
+}
+
+@import "./components/components";
+@import "./templates/app/App";
+@import "./templates/login/Login";

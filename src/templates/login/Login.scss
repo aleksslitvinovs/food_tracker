@@ -1,0 +1,23 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+
+    .header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 40px;
+
+        svg {
+            width: 200px;
+            height: auto;
+        }
+
+        .header-title__text {
+            flex: 1;
+            margin-left: 50px;
+        }
+    }
+}

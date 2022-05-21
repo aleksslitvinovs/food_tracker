@@ -1,0 +1,21 @@
+.login {
+    position: relative;
+    width: 100%;
+
+    .login-button {
+        width: 100%;
+        appearance: none;
+        background: #38514D;
+        border-radius: 5px;
+        border: inherit;
+        padding: 20px 0;
+        cursor: pointer;
+    }
+
+    svg {
+        position: absolute;
+        right: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+}
