@@ -17,7 +17,8 @@ const Icon: FC<IProps> = ({ className, name }): JSX.Element => {
     const element = icons[name as keyof typeof icons];
 
     if (!element) {
-      throw new Error(`Icon ${name} not found`);
+      // throw new Error(`Icon ${name} not found`);
+      console.log("Icon", name, "not found");
     }
 
     return element;

@@ -1,42 +1,111 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
 
 import { User } from "../../types/user";
 import { objectEmpty } from "../../utils/method";
+import Category from "../category/Category";
+import {
+  Category as CategoryT,
+  Categories as CategoriesT,
+  FoodItem as FoodItemT,
+} from "../../types/categories";
+import { child, get, getDatabase, ref } from "firebase/database";
+import Home from "../home/Home";
+import Login from "../login/Login";
+import NotFound from "../notFound/NotFound";
 import Header from "../../components/header/Header";
-import Categories from "../../components/categories/Categories";
+import FoodItem from "../foodItem/FoodItem";
 
 const App = (): JSX.Element => {
-  const navigate = useNavigate();
-  // const [categories,setCategories] = useEffect<Categories>({} as Categories)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [categories, setCategories] = useState<CategoriesT>({} as CategoriesT);
+  const [categoryName, setCategoryName] = useState<string>("");
+  const [foodName, setFoodName] = useState<string>("");
+
+  const getCategories = (): any => {
+    const dbRef = ref(getDatabase());
+
+    get(child(dbRef, "categories"))
+      .then((res) => {
+        if (!res.exists()) {
+          return;
+        }
+
+        const categories = res.val() as CategoriesT;
+        console.log("From DB", categories);
+
+        setCategories(categories);
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
+  };
+
+  const getCategory = (categoryName: string): CategoryT => {
+    return categories[categoryName as keyof CategoriesT];
+  };
+
+  const getFoodItem = (categoryName: string, foodName: string): FoodItemT => {
+    const category = getCategory(categoryName) || [];
+
+    return category?.items?.filter((item) => item.name === foodName)[0];
+  };
 
   useEffect(() => {
     const user: User = JSON.parse(localStorage.getItem("user") as string) || {};
 
-    if (objectEmpty(user)) {
-      navigate("/login");
+    if (!objectEmpty(user)) {
+      setIsLoggedIn(true);
+      getCategories();
     }
-  }, [navigate]);
+  }, []);
 
-  return (
-    <div>
-      <Header />
-      <div className="page">
-        <h1>Home</h1>
-        <h2>Add consumed products</h2>
-        <span>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
-        </span>
-      </div>
-      <Categories />
-    </div>
-  );
+  const renderPublicRoute = (): JSX.Element => {
+    return (
+      <Routes>
+        <Route path="/" element={<Home categories={categories} />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  };
+
+  const renderPrivateRoutes = (): JSX.Element => {
+    return (
+      <>
+        <Header />
+
+        <Routes>
+          <Route path="/" element={<Home categories={categories} />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/categories/:categoryName"
+            element={
+              <Category
+                category={getCategory(categoryName)}
+                setCategory={setCategoryName}
+              />
+            }
+          />
+          <Route
+            path="/categories/:categoryName/:foodName"
+            element={
+              <FoodItem
+                foodItem={getFoodItem(categoryName, foodName)}
+                setFoodItemName={setFoodName}
+              />
+            }
+          />
+          ;
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+
+        <footer>@All rights reserved ADA Eats</footer>
+      </>
+    );
+  };
+
+  return isLoggedIn ? renderPrivateRoutes() : renderPublicRoute();
 };
 
 export default App;

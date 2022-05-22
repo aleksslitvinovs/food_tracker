@@ -3,13 +3,16 @@ export interface FoodItem {
   calories: number;
 }
 
+export interface Category {
+  items: FoodItem[];
+}
 export interface Categories {
-  snacks: FoodItem[];
-  fruits: FoodItem[];
-  vegetables: FoodItem[];
-  dairyAndEggs: FoodItem[];
-  sweets: FoodItem[];
-  meat: FoodItem[];
-  pantry: FoodItem[];
-  bakery: FoodItem[];
+  snacks: Category;
+  fruits: Category;
+  vegetables: Category;
+  dairyAndEggs: Category;
+  sweets: Category;
+  meat: Category;
+  pantry: Category;
+  bakery: Category;
 }

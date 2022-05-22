@@ -1,2 +1,7 @@
-export const objectEmpty = (obj: Object): boolean =>
-  Object.keys(obj).length === 0;
+export const objectEmpty = (obj: Object | undefined): boolean => {
+  if (obj === undefined) {
+    return true;
+  }
+
+  return Object.keys(obj).length === 0;
+};

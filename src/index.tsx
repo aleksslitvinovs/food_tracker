@@ -1,11 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import Home from "./templates/app/App";
-import NotFound from "./templates/notFound/NotFound";
+import { BrowserRouter } from "react-router-dom";
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./templates/login/Login";
+import App from "./templates/app/App";
 
 import "./index.scss";
 
@@ -16,11 +13,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <App />
     </BrowserRouter>
   </React.StrictMode>
 );
