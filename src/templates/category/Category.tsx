@@ -1,7 +1,14 @@
 import { Dispatch, FC, SetStateAction, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Button from "../../components/button/Button";
 import FoodCard from "../../components/foodCard/FoodCard";
+import Icon from "../../components/icon/Icon";
 import { Category as CategoryT } from "../../types/categories";
+import {
+  addSpaceBetweenWords,
+  convertToCamelCase,
+  urlize,
+} from "../../utils/method";
 
 interface IProps {
   category: CategoryT;
@@ -13,7 +20,7 @@ const Category: FC<IProps> = ({ category, setCategory }): JSX.Element => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setCategory(categoryName || "");
+    setCategory(convertToCamelCase(categoryName as string) || "");
   }, [categoryName, setCategory, category]);
 
   const handleBack = (): void => {
@@ -21,7 +28,7 @@ const Category: FC<IProps> = ({ category, setCategory }): JSX.Element => {
   };
 
   const handleClick = (categoryName: string, foodName: string): void => {
-    navigate(`/categories/${categoryName}/${foodName}`);
+    navigate(`/categories/${urlize(categoryName)}/${urlize(foodName, " ")}`);
   };
 
   const renderItems = (): JSX.Element => {
@@ -32,7 +39,8 @@ const Category: FC<IProps> = ({ category, setCategory }): JSX.Element => {
         {items.map((item, index) => (
           <FoodCard
             key={index}
-            name={"food"}
+            iconName="food"
+            name={item.name}
             handleClick={() => handleClick(categoryName as string, item.name)}
           />
         ))}
@@ -42,10 +50,14 @@ const Category: FC<IProps> = ({ category, setCategory }): JSX.Element => {
 
   return (
     <div className={`category ${categoryName}`}>
-      <button onClick={handleBack} className="back-button">
-        Back
-      </button>
-      <h1>{categoryName}</h1>
+      <Button
+        className="go-back"
+        onClick={handleBack}
+        text="Back"
+        textAlign="left"
+        icon={<Icon name="caret" />}
+      />
+      <h1>{addSpaceBetweenWords(categoryName as string, "-")}</h1>
 
       {renderItems()}
     </div>

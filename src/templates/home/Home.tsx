@@ -2,9 +2,10 @@ import { MouseEvent, FC, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { User } from "../../types/user";
-import { objectEmpty } from "../../utils/method";
+import { objectEmpty, urlize } from "../../utils/method";
 import { Categories as CategoriesT } from "../../types/categories";
 import FoodCard from "../../components/foodCard/FoodCard";
+import Button from "../../components/button/Button";
 
 interface IProps {
   categories: CategoriesT;
@@ -21,15 +22,20 @@ const Home: FC<IProps> = ({ categories }): JSX.Element => {
     }
   }, [navigate]);
 
-  const handleClick = (
-    event: MouseEvent<HTMLDivElement>,
-    name?: string
-  ): void => {
+  const handleClick = (event?: MouseEvent, name?: string): void => {
     if (event) {
       event.preventDefault();
     }
 
-    navigate(`/categories/${name}`);
+    navigate(`/categories/${urlize(name as string)}`);
+  };
+
+  const handleConsumptionClick = (event?: MouseEvent): void => {
+    if (event) {
+      event.preventDefault();
+    }
+
+    navigate("/daily-consumption");
   };
 
   const renderCategories = (): JSX.Element[] => {
@@ -57,6 +63,13 @@ const Home: FC<IProps> = ({ categories }): JSX.Element => {
       <div className="categories">
         {!objectEmpty(categories) && renderCategories()}
       </div>
+
+      <Button
+        className="consumption-button"
+        onClick={handleConsumptionClick}
+        text="Daily consumption"
+        textAlign="center"
+      />
     </div>
   );
 };

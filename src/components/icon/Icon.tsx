@@ -5,12 +5,18 @@ import { icons } from "../../assets/icons/icons";
 interface IProps {
   className?: string;
   name: string;
+  onClick?: (event?: React.MouseEvent) => void;
 }
 
-const Icon: FC<IProps> = ({ className, name }): JSX.Element => {
+const Icon: FC<IProps> = ({
+  className,
+  name,
+  onClick = () => {},
+}): JSX.Element => {
   const newProps = {
     className: className || `icon-${name}`,
     name,
+    onClick,
   };
 
   const renderIcon = (): JSX.Element => {
@@ -18,7 +24,7 @@ const Icon: FC<IProps> = ({ className, name }): JSX.Element => {
 
     if (!element) {
       // throw new Error(`Icon ${name} not found`);
-      console.log("Icon", name, "not found");
+      console.error("Icon", name, "not found");
     }
 
     return element;

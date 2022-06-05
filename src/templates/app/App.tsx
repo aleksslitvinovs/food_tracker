@@ -9,23 +9,25 @@ import {
   Categories as CategoriesT,
   FoodItem as FoodItemT,
 } from "../../types/categories";
-import { child, get, getDatabase, ref } from "firebase/database";
+import { get, getDatabase, ref } from "firebase/database";
 import Home from "../home/Home";
 import Login from "../login/Login";
 import NotFound from "../notFound/NotFound";
 import Header from "../../components/header/Header";
 import FoodItem from "../foodItem/FoodItem";
+import DailyConsumption from "../dailyConsumption/DailyConsumption";
 
 const App = (): JSX.Element => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [user, setUser] = useState<User>({} as User);
   const [categories, setCategories] = useState<CategoriesT>({} as CategoriesT);
   const [categoryName, setCategoryName] = useState<string>("");
   const [foodName, setFoodName] = useState<string>("");
 
   const getCategories = (): any => {
-    const dbRef = ref(getDatabase());
+    const db = getDatabase();
 
-    get(child(dbRef, "categories"))
+    get(ref(db, "categories"))
       .then((res) => {
         if (!res.exists()) {
           return;
@@ -56,6 +58,7 @@ const App = (): JSX.Element => {
 
     if (!objectEmpty(user)) {
       setIsLoggedIn(true);
+      setUser(user);
       getCategories();
     }
   }, []);
@@ -91,12 +94,16 @@ const App = (): JSX.Element => {
             path="/categories/:categoryName/:foodName"
             element={
               <FoodItem
+                user={user}
                 foodItem={getFoodItem(categoryName, foodName)}
                 setFoodItemName={setFoodName}
               />
             }
           />
-          ;
+          <Route
+            path="daily-consumption"
+            element={<DailyConsumption user={user} />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
 
