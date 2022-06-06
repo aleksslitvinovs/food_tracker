@@ -82,7 +82,7 @@ const DailyConsumption: FC<IProps> = ({ user }): JSX.Element => {
               return (
                 <div className="item-container" key={itemRef}>
                   <div className="item">
-                    {item.name}-{item.calories}
+                    {item.name} - {item.calories} calories
                   </div>
                   <Icon
                     name="cross"

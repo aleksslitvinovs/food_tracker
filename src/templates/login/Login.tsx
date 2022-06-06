@@ -1,26 +1,31 @@
-import { useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import GoogleLogin from "../../components/googleLogin/GoogleLogin";
 import Icon from "../../components/icon/Icon";
-import { objectEmpty } from "../../utils/method";
 import { User } from "../../types/user";
 
-const Login = (): JSX.Element => {
+interface IProps {
+  user: User;
+  isLoggedIn: boolean;
+  setUser: Dispatch<SetStateAction<User>>;
+  setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
+}
+
+const Login: FC<IProps> = ({
+  isLoggedIn,
+  setUser,
+  setIsLoggedIn,
+}): JSX.Element => {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState<User>({} as User);
-
   useEffect(() => {
-    const user: User = JSON.parse(localStorage.getItem("user") as string) || {};
-    setUser(user);
-
-    if (!objectEmpty(user)) {
+    if (isLoggedIn) {
       navigate("/", { replace: true });
     }
-  }, [navigate]);
+  }, [isLoggedIn, navigate]);
 
-  return objectEmpty(user) ? (
+  return !isLoggedIn ? (
     <div className="login-container">
       <div className="header">
         <Icon name="logo" />
@@ -35,7 +40,7 @@ const Login = (): JSX.Element => {
         </div>
       </div>
 
-      <GoogleLogin />
+      <GoogleLogin setIsLoggedIn={setIsLoggedIn} setUser={setUser} />
     </div>
   ) : (
     <></>

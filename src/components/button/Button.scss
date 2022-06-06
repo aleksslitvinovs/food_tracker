@@ -1,12 +1,19 @@
 .button {
-  width: 354px;
-  height: 88px;
-  padding: 25px 5px;
-  border: 5px solid #38514d;
-  border-radius: 10px;
-  background: none;
-  display: flex;
+  width: 240px;
+    height: 65px;
+    padding: 0px 5px;
+    border: 5px solid #38514d;
+    border-radius: 10px;
+    background: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 
+
+  svg {
+    width: 10px;
+    height: auto;
+  }
   // TODO: Make this actually work
   &-text {
     &__left {

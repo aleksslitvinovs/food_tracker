@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { Consumption, ConsumptionItem } from "../../types/consumption";
 import Button from "../../components/button/Button";
 import { addSpaceBetweenWords, urlize } from "../../utils/method";
+import { icons } from "../../assets/icons/icons";
 
 interface IProps {
   user: User;
@@ -36,13 +37,15 @@ const FoodItem: FC<IProps> = ({
 }): JSX.Element => {
   const navigate = useNavigate();
   const { categoryName, foodName } = useParams();
+  const [errorClass, setErrorClass] = useState("");
 
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number | string>("");
 
   useEffect(() => {
     const name = addSpaceBetweenWords(foodName || "", "-");
+    const sentenceCaseName = name.charAt(0).toUpperCase() + name.slice(1);
 
-    setFoodItemName(name.charAt(0).toUpperCase() + name.slice(1));
+    setFoodItemName(sentenceCaseName);
   }, [foodName, setFoodItemName]);
 
   const handleBack = (): void => {
@@ -52,11 +55,24 @@ const FoodItem: FC<IProps> = ({
   const handleInputChange = (event?: ChangeEvent<HTMLInputElement>): void => {
     const { value = "" } = event?.target || {};
 
-    setQuantity(parseInt(value));
+    if (value.length > 4) {
+      return;
+    }
+
+    setErrorClass("");
+    setQuantity(parseInt(value, 10));
   };
 
   const handleAddProduct = async (event?: React.MouseEvent): Promise<void> => {
     const db = getDatabase();
+
+    if (quantity <= 0 || isNaN(quantity as number)) {
+      setErrorClass("food-item-input__error");
+
+      return;
+    }
+
+    setErrorClass("");
 
     const consumptionRef = (await get(
       ref(db, `users/${user.uid}/consumption`)
@@ -70,9 +86,9 @@ const FoodItem: FC<IProps> = ({
 
     console.log("food item", foodItem);
     const newConsumption: ConsumptionItem = {
-      quantity,
+      quantity: quantity as number,
       name: foodItem.name,
-      calories: foodItem.calories,
+      calories: (foodItem.calories / 100) * (quantity as number),
     };
 
     const { key } = push(ref(db, `users/${user.uid}/consumption/${date}`));
@@ -81,7 +97,15 @@ const FoodItem: FC<IProps> = ({
       ref(db, `users/${user.uid}/consumption/${date}/${key}`),
       newConsumption
     );
+
+    setQuantity("");
   };
+
+  console.log("item ", foodItem);
+  console.log("found item", icons[foodItem?.icon as keyof typeof icons]);
+  const iconName = icons[foodItem?.icon as keyof typeof icons]
+    ? foodItem?.icon
+    : "food";
 
   return (
     <div className="food-item">
@@ -93,15 +117,28 @@ const FoodItem: FC<IProps> = ({
         icon={<Icon name="caret" />}
       />
 
-      <Icon name="food" className="food-item-icon" />
+      <Icon name={iconName} className="food-item-icon" />
+
       <h1>{addSpaceBetweenWords(foodName as string, "-")}</h1>
+
       <h2>Average {foodItem?.calories} calories per 100g</h2>
+
       <input
         type="number"
+        maxLength={4}
         placeholder="Amount in gramms"
+        value={quantity}
+        className={`food-item-input ${errorClass}`}
         onChange={handleInputChange}
       />
-      <button onClick={handleAddProduct}>
+
+      {errorClass && (
+        <p className="food-item-input__error-text">
+          Please enter a valid amount
+        </p>
+      )}
+
+      <button className="add-food-item" onClick={handleAddProduct}>
         Add product to today's consuption
       </button>
     </div>

@@ -1,5 +1,6 @@
 import { Dispatch, FC, SetStateAction, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { icons } from "../../assets/icons/icons";
 import Button from "../../components/button/Button";
 import FoodCard from "../../components/foodCard/FoodCard";
 import Icon from "../../components/icon/Icon";
@@ -36,14 +37,20 @@ const Category: FC<IProps> = ({ category, setCategory }): JSX.Element => {
 
     return (
       <div className="category-items">
-        {items.map((item, index) => (
-          <FoodCard
-            key={index}
-            iconName="food"
-            name={item.name}
-            handleClick={() => handleClick(categoryName as string, item.name)}
-          />
-        ))}
+        {items.map((item, index) => {
+          const iconName = icons[item.icon as keyof typeof icons]
+            ? item.icon
+            : "food";
+
+          return (
+            <FoodCard
+              key={index}
+              iconName={iconName}
+              name={item.name}
+              handleClick={() => handleClick(categoryName as string, item.name)}
+            />
+          );
+        })}
       </div>
     );
   };

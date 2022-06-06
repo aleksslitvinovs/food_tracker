@@ -1,26 +1,42 @@
-import { MouseEvent, FC, useEffect } from "react";
+import { Dispatch, MouseEvent, FC, useEffect, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { User } from "../../types/user";
 import { objectEmpty, urlize } from "../../utils/method";
-import { Categories as CategoriesT } from "../../types/categories";
+import { Categories, Categories as CategoriesT } from "../../types/categories";
 import FoodCard from "../../components/foodCard/FoodCard";
 import Button from "../../components/button/Button";
+import { getCategories } from "../../db/categories";
 
 interface IProps {
+  user: User;
+  isLoggedIn: boolean;
+  setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
   categories: CategoriesT;
+  setCategories: Dispatch<SetStateAction<Categories>>;
 }
 
-const Home: FC<IProps> = ({ categories }): JSX.Element => {
+const Home: FC<IProps> = ({
+  user,
+  isLoggedIn,
+  setIsLoggedIn,
+  categories,
+  setCategories,
+}): JSX.Element => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user: User = JSON.parse(localStorage.getItem("user") as string) || {};
-
-    if (objectEmpty(user)) {
+    if (!isLoggedIn) {
       navigate("/login");
+      return;
     }
-  }, [navigate]);
+
+    if (objectEmpty(categories)) {
+      getCategories()
+        .then((cat) => setCategories(cat))
+        .catch((err) => console.log(err));
+    }
+  }, [categories, isLoggedIn, navigate, setCategories, setIsLoggedIn]);
 
   const handleClick = (event?: MouseEvent, name?: string): void => {
     if (event) {
@@ -38,6 +54,16 @@ const Home: FC<IProps> = ({ categories }): JSX.Element => {
     navigate("/daily-consumption");
   };
 
+  const handleLogOut = (event?: MouseEvent): void => {
+    if (event) {
+      event.preventDefault();
+    }
+
+    setIsLoggedIn(false);
+    localStorage.setItem("loggedIn", "false");
+    navigate("/login");
+  };
+
   const renderCategories = (): JSX.Element[] => {
     return Object.keys(categories).map((name, index) => (
       <FoodCard key={index} name={name} handleClick={handleClick} />
@@ -47,6 +73,14 @@ const Home: FC<IProps> = ({ categories }): JSX.Element => {
   return (
     <div>
       <div className="page">
+        <div className="user-info">
+          <img className="user-info__photo" src={user.photoURL} alt="user" />
+          <div className="user-info__details">
+            <div className="user-info__name">{user.name}</div>
+            <div className="user-info__email">{user.email}</div>
+          </div>
+          <button onClick={handleLogOut}>Log out</button>
+        </div>
         <h1>Home</h1>
         <h2>Add consumed products</h2>
         <p>

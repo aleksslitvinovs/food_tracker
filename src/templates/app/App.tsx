@@ -2,20 +2,19 @@ import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { User } from "../../types/user";
-import { objectEmpty } from "../../utils/method";
 import Category from "../category/Category";
 import {
   Category as CategoryT,
   Categories as CategoriesT,
   FoodItem as FoodItemT,
 } from "../../types/categories";
-import { get, getDatabase, ref } from "firebase/database";
 import Home from "../home/Home";
 import Login from "../login/Login";
 import NotFound from "../notFound/NotFound";
 import Header from "../../components/header/Header";
 import FoodItem from "../foodItem/FoodItem";
 import DailyConsumption from "../dailyConsumption/DailyConsumption";
+import { getCategories } from "../../db/categories";
 
 const App = (): JSX.Element => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -24,50 +23,57 @@ const App = (): JSX.Element => {
   const [categoryName, setCategoryName] = useState<string>("");
   const [foodName, setFoodName] = useState<string>("");
 
-  const getCategories = (): any => {
-    const db = getDatabase();
-
-    get(ref(db, "categories"))
-      .then((res) => {
-        if (!res.exists()) {
-          return;
-        }
-
-        const categories = res.val() as CategoriesT;
-        console.log("From DB", categories);
-
-        setCategories(categories);
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
-  };
-
   const getCategory = (categoryName: string): CategoryT => {
     return categories[categoryName as keyof CategoriesT];
   };
 
   const getFoodItem = (categoryName: string, foodName: string): FoodItemT => {
     const category = getCategory(categoryName) || [];
+    console.log("category", category)
 
     return category?.items?.filter((item) => item.name === foodName)[0];
   };
 
   useEffect(() => {
-    const user: User = JSON.parse(localStorage.getItem("user") as string) || {};
-
-    if (!objectEmpty(user)) {
+    if (localStorage.getItem("loggedIn") === "true") {
       setIsLoggedIn(true);
-      setUser(user);
-      getCategories();
     }
-  }, []);
+
+    if (localStorage.getItem("user")) {
+      setUser(JSON.parse(localStorage.getItem("user") as string));
+    }
+
+    getCategories()
+      .then((categories) => setCategories(categories))
+      .catch((err) => console.log(err));
+  }, [isLoggedIn]);
 
   const renderPublicRoute = (): JSX.Element => {
     return (
       <Routes>
-        <Route path="/" element={<Home categories={categories} />} />
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <Home
+              user={user}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              categories={categories}
+              setCategories={setCategories}
+            />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Login
+              user={user}
+              isLoggedIn={isLoggedIn}
+              setUser={setUser}
+              setIsLoggedIn={setIsLoggedIn}
+            />
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     );
@@ -79,8 +85,29 @@ const App = (): JSX.Element => {
         <Header />
 
         <Routes>
-          <Route path="/" element={<Home categories={categories} />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <Home
+                user={user}
+                isLoggedIn={isLoggedIn}
+                setIsLoggedIn={setIsLoggedIn}
+                categories={categories}
+                setCategories={setCategories}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <Login
+                user={user}
+                isLoggedIn={isLoggedIn}
+                setUser={setUser}
+                setIsLoggedIn={setIsLoggedIn}
+              />
+            }
+          />
           <Route
             path="/categories/:categoryName"
             element={
