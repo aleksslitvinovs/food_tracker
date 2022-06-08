@@ -1,15 +1,27 @@
-import { DataSnapshot, get, getDatabase, ref, set } from "firebase/database";
+import {
+  DataSnapshot,
+  getDatabase,
+  orderByKey,
+  ref,
+  set,
+  query,
+  get,
+} from "firebase/database";
 import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/button/Button";
 import Icon from "../../components/icon/Icon";
-import { Consumption } from "../../types/consumption";
+import { Consumption, ConsumptionItem } from "../../types/consumption";
 import { User } from "../../types/user";
-import { objectEmpty } from "../../utils/method";
+import { formatDate, objectEmpty } from "../../utils/method";
 
 interface IProps {
   user: User;
 }
+
+type ConsumptionItemWithRef = ConsumptionItem & {
+  ref: string;
+};
 
 const DailyConsumption: FC<IProps> = ({ user }): JSX.Element => {
   const navigate = useNavigate();
@@ -26,11 +38,22 @@ const DailyConsumption: FC<IProps> = ({ user }): JSX.Element => {
     const db = getDatabase();
 
     const consumptionRef = (await get(
-      ref(db, `users/${user.uid}/consumption`)
+      query(ref(db, `users/${user.uid}/consumption`), orderByKey())
     ).catch((err) => console.error(err)))! as DataSnapshot;
 
-    console.log("consumption value", consumptionRef.val());
-    setConsumption(consumptionRef.val() || {});
+    const rawConsumption: Consumption = consumptionRef.val() || {};
+
+    const orderderedConsumption: Consumption = {};
+
+    Object.keys(rawConsumption)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+      .forEach((key) => {
+        orderderedConsumption[key] = rawConsumption[key];
+      });
+
+    console.log("consumption", orderderedConsumption);
+
+    setConsumption(orderderedConsumption);
   };
 
   useEffect(() => {
@@ -38,11 +61,7 @@ const DailyConsumption: FC<IProps> = ({ user }): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleItemDelete = async (
-    date: string,
-    id: string,
-    event?: React.MouseEvent
-  ) => {
+  const handleItemDelete = async (date: string, id: string) => {
     const db = getDatabase();
 
     await set(
@@ -63,31 +82,54 @@ const DailyConsumption: FC<IProps> = ({ user }): JSX.Element => {
     });
   };
 
+  const getDailyItems = (date: string): ConsumptionItemWithRef[] => {
+    const dateItems = consumption[date];
+
+    const itemRefs = Object.keys(dateItems);
+
+    const items: ConsumptionItemWithRef[] = [];
+
+    itemRefs.forEach((ref) => {
+      console.log("item refs", ref);
+      const item = dateItems[ref];
+
+      items.push({ ...item, ref });
+    });
+
+    return items;
+  };
+
+  const getTotalCalories = (items: ConsumptionItemWithRef[]): number => {
+    return items.reduce((acc, item) => acc + item.calories, 0);
+  };
+
   const renderDailyConsumption = (): JSX.Element[] => {
     const dates = Object.keys(consumption);
 
     return dates.map((date) => {
-      const dateItems = consumption[date];
-
-      const itemRefs = Object.keys(dateItems);
+      const dailyItems = getDailyItems(date);
 
       return (
         <div className="daily-consumption__item" key={date}>
-          <div className="name">{date}</div>
+          <div className="date">{formatDate(date)}</div>
+          <div className="date-total-calories">
+            {getTotalCalories(dailyItems)} calories
+          </div>
 
           <div className="items">
-            {itemRefs.map((itemRef) => {
-              const item = dateItems[itemRef];
-
+            {dailyItems.map((item) => {
               return (
-                <div className="item-container" key={itemRef}>
+                <div className="item-container" key={item.ref}>
                   <div className="item">
-                    {item.name} - {item.calories} calories
+                    {item.name} -{" "}
+                    {parseFloat(item.calories.toString()).toFixed(2)} calories (
+                    {item.quantity}
+                    grams)
                   </div>
                   <Icon
                     name="cross"
                     className="delete-item"
-                    onClick={(event) => handleItemDelete(date, itemRef, event)}
+                    onClick={() => handleItemDelete(date, item.ref)}
                   />
                 </div>
               );

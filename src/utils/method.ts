@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const objectEmpty = (obj: Object | undefined): boolean => {
   if (obj === undefined) {
     return true;
@@ -44,4 +46,25 @@ export const convertToCamelCase = (
   console.log("converted", foo);
 
   return foo;
+};
+
+export const convertToSentenceCase = (str: string) => {
+  const name = addSpaceBetweenWords(str || "", "-");
+
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
+
+// Converts from dd-mm-yyy to today, yesterday and nth of mm yyyy
+export const formatDate = (date: string): string => {
+  const today = dayjs().format("DD-MM-YYYY");
+  const yesterday = dayjs().subtract(1, "day").format("DD-MM-YYYY");
+
+  switch (true) {
+    case date === today:
+      return "Today";
+    case date === yesterday:
+      return "Yesterday";
+    default:
+      return dayjs(date).format("D MMMM YYYY");
+  }
 };

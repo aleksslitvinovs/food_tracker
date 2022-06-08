@@ -3,7 +3,6 @@ footer {
   text-align: right;
 }
 
-
 .user-info {
   display: flex;
   align-items: center;
@@ -11,6 +10,7 @@ footer {
 
   &__photo {
     margin: 0 20px 0 0;
+    border-radius: 5px;
   }
 
   &__details {
@@ -28,20 +28,27 @@ footer {
 }
 
 .daily-consumption__item {
-
   .item-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20px 30px;
-    background-color: #38514D;
+    background-color: #38514d;
     margin-top: 15px;
     border-radius: 5px;
   }
 
-  .name {
+  .date {
+    padding-top: 82px;
     font-size: 30px;
     font-weight: 600;
+  }
+
+  .date-total-calories {
+    font-size: 22px;
+    padding-top: 10px;
+    font-weight: 600;
+    color: #ffffff;
   }
 
   svg {

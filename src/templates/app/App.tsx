@@ -15,9 +15,11 @@ import Header from "../../components/header/Header";
 import FoodItem from "../foodItem/FoodItem";
 import DailyConsumption from "../dailyConsumption/DailyConsumption";
 import { getCategories } from "../../db/categories";
+import { ToastContainer } from "react-toastify";
 
 const App = (): JSX.Element => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User>({} as User);
   const [categories, setCategories] = useState<CategoriesT>({} as CategoriesT);
   const [categoryName, setCategoryName] = useState<string>("");
@@ -29,7 +31,7 @@ const App = (): JSX.Element => {
 
   const getFoodItem = (categoryName: string, foodName: string): FoodItemT => {
     const category = getCategory(categoryName) || [];
-    console.log("category", category)
+    console.log("category", category);
 
     return category?.items?.filter((item) => item.name === foodName)[0];
   };
@@ -43,9 +45,12 @@ const App = (): JSX.Element => {
       setUser(JSON.parse(localStorage.getItem("user") as string));
     }
 
+    setIsLoading(true);
+
     getCategories()
       .then((categories) => setCategories(categories))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false));
   }, [isLoggedIn]);
 
   const renderPublicRoute = (): JSX.Element => {
@@ -124,6 +129,8 @@ const App = (): JSX.Element => {
                 user={user}
                 foodItem={getFoodItem(categoryName, foodName)}
                 setFoodItemName={setFoodName}
+                setCategoryName={setCategoryName}
+                isLoading={isLoading}
               />
             }
           />
@@ -135,6 +142,22 @@ const App = (): JSX.Element => {
         </Routes>
 
         <footer>@All rights reserved ADA Eats</footer>
+
+        <ToastContainer
+          className="alert-container"
+          toastClassName="alert-box"
+          position="bottom-center"
+          theme="dark"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          icon={true}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </>
     );
   };

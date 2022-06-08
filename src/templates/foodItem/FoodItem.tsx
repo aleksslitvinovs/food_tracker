@@ -21,19 +21,29 @@ import { User } from "../../types/user";
 import dayjs from "dayjs";
 import { Consumption, ConsumptionItem } from "../../types/consumption";
 import Button from "../../components/button/Button";
-import { addSpaceBetweenWords, urlize } from "../../utils/method";
+import {
+  addSpaceBetweenWords,
+  convertToCamelCase,
+  convertToSentenceCase,
+  urlize,
+} from "../../utils/method";
 import { icons } from "../../assets/icons/icons";
+import { toast } from "react-toastify";
 
 interface IProps {
   user: User;
   foodItem: FoodItemT;
   setFoodItemName: Dispatch<SetStateAction<string>>;
+  setCategoryName: Dispatch<SetStateAction<string>>;
+  isLoading: boolean;
 }
 
 const FoodItem: FC<IProps> = ({
   user,
   foodItem,
   setFoodItemName,
+  setCategoryName,
+  isLoading,
 }): JSX.Element => {
   const navigate = useNavigate();
   const { categoryName, foodName } = useParams();
@@ -42,11 +52,13 @@ const FoodItem: FC<IProps> = ({
   const [quantity, setQuantity] = useState<number | string>("");
 
   useEffect(() => {
-    const name = addSpaceBetweenWords(foodName || "", "-");
-    const sentenceCaseName = name.charAt(0).toUpperCase() + name.slice(1);
+    if (isLoading) {
+      return;
+    }
 
-    setFoodItemName(sentenceCaseName);
-  }, [foodName, setFoodItemName]);
+    setCategoryName(convertToCamelCase(categoryName as string));
+    setFoodItemName(convertToSentenceCase(foodName as string));
+  }, [isLoading, foodName, setFoodItemName, setCategoryName, categoryName]);
 
   const handleBack = (): void => {
     navigate(`/categories/${urlize(categoryName as string)}`);
@@ -60,13 +72,13 @@ const FoodItem: FC<IProps> = ({
     }
 
     setErrorClass("");
-    setQuantity(parseInt(value, 10));
+    setQuantity(parseFloat(value));
   };
 
   const handleAddProduct = async (event?: React.MouseEvent): Promise<void> => {
     const db = getDatabase();
 
-    if (quantity <= 0 || isNaN(quantity as number)) {
+    if (quantity < 1 || isNaN(quantity as number)) {
       setErrorClass("food-item-input__error");
 
       return;
@@ -88,7 +100,7 @@ const FoodItem: FC<IProps> = ({
     const newConsumption: ConsumptionItem = {
       quantity: quantity as number,
       name: foodItem.name,
-      calories: (foodItem.calories / 100) * (quantity as number),
+      calories: Math.trunc((foodItem.calories / 100) * (quantity as number)),
     };
 
     const { key } = push(ref(db, `users/${user.uid}/consumption/${date}`));
@@ -98,16 +110,17 @@ const FoodItem: FC<IProps> = ({
       newConsumption
     );
 
+    toast.success("Product added");
+
     setQuantity("");
   };
 
   console.log("item ", foodItem);
-  console.log("found item", icons[foodItem?.icon as keyof typeof icons]);
   const iconName = icons[foodItem?.icon as keyof typeof icons]
     ? foodItem?.icon
     : "food";
 
-  return (
+  const renderItem = (): JSX.Element => (
     <div className="food-item">
       <Button
         className="go-back"
@@ -143,6 +156,8 @@ const FoodItem: FC<IProps> = ({
       </button>
     </div>
   );
+
+  return isLoading ? <div className="food-item">Loading...</div> : renderItem();
 };
 
 export default FoodItem;

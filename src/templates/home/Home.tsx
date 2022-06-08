@@ -84,13 +84,11 @@ const Home: FC<IProps> = ({
         <h1>Home</h1>
         <h2>Add consumed products</h2>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+          Eating a healthy, balanced diet is one of the most important things
+          you can do to protect your health. In fact, up to 80% of premature
+          heart disease and stroke can be prevented through your life choices
+          and habits, such as eating a healthy diet and being physically active.
+          A healthy diet can help lower your risk of heart disease and stroke
         </p>
       </div>
 

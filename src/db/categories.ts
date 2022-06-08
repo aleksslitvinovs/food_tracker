@@ -13,6 +13,7 @@ export const getCategories = async (): Promise<Categories> => {
 
         const categories = res.val() as Categories;
 
+        console.log("categories fetch", categories);
         resolve(categories);
       })
       .catch((err) => reject(err));

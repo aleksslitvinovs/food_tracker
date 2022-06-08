@@ -1,0 +1,13 @@
+@import "~react-toastify/dist/ReactToastify.min.css";
+
+.alert-container {
+  bottom: 0;
+  right: 21px;
+  width: autp;
+  max-width: 400px;
+}
+
+.Toastify {
+  position: absolute;
+  z-index: 99999999;
+}

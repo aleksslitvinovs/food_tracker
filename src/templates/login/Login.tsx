@@ -33,10 +33,7 @@ const Login: FC<IProps> = ({
         <div className="header-title"></div>
         <div className="header-title__text">
           <h1>Welcome to our food tracking app</h1>
-          <div>
-            Track you calories and receive instant suggestions how to <br></br>
-            improve your daily ration
-          </div>
+          <div>Your favorite daily calorie tracker</div>
         </div>
       </div>
 
